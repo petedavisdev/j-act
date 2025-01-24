@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>j-act Playground</title>
+		<script src="main.js" defer></script>
+		<style>
+			[hidden] {
+				display: none !important;
+			}
+			.pink {
+				color: hotpink;
+			}
+			.bold {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>j-act Playground</h1>
+		<button id="btn">Hide</button>
+		<p j-act="#btn; ; classList.toggle; pink">
+			This is a j-active paragraph.
+		</p>
+
+		<p j-act="[name=first-name]">First name</p>
+		<input type="text" id="input" name="first-name" />
+
+		<button j-act>Hide me</button>
+	</body>
+</html>
