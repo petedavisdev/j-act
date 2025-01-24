@@ -4,7 +4,6 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>j-act Playground</title>
-		<script src="main.js" defer></script>
 		<style>
 			[hidden] {
 				display: none !important;
@@ -19,14 +18,24 @@
 	</head>
 	<body>
 		<h1>j-act Playground</h1>
-		<button id="btn">Hide</button>
-		<p j-act="#btn; ; classList.toggle; pink">
-			This is a j-active paragraph.
+		<h2>Default behaviour <code>j-act</code></h2>
+		<button id="btn1" j-act>Button 1</button>
+		<p j-act="#btn1" hidden>It hid itself!</p>
+
+		<h2>Let's use <code>id="btn-2"</code> to trigger a bunch of changes</h2>
+		<button id="btn2">Button 2</button>
+
+		<p j-act="#btn2; ; classList.toggle; pink">
+			Toggling <code j-act="#btn2">hidden</code> attribute and class.
 		</p>
 
-		<p j-act="[name=first-name]">First name</p>
-		<input type="text" id="input" name="first-name" />
+		<label for="input">Enter your first name:</label>
+		<p
+			j-act="[name=first-name]; focus; innerText; you're using the first name input!"
+		></p>
+		<p j-act="[name=first-name]"></p>
+		<input type="text" id="first-name" name="first-name" />
 
-		<button j-act>Hide me</button>
+		<script type="module" src="/src/main.ts"></script>
 	</body>
 </html>
