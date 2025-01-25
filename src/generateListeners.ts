@@ -1,56 +1,52 @@
 import { CONFIG } from './constants';
 
 export function generateEventListeners() {
-	const elements = document.querySelectorAll(`[${CONFIG.attribute}]`);
+	const jActElements = document.querySelectorAll(`[${CONFIG.attribute}]`);
 
-	(elements as NodeListOf<HTMLInputElement>).forEach((element) => {
-		const jActValue = element.getAttribute(CONFIG.attribute);
+	(jActElements as NodeListOf<HTMLInputElement>).forEach((jActElement) => {
+		const jActValue = jActElement.getAttribute(CONFIG.attribute);
 
-		const [selector, event, property, value] =
-			jActValue?.split(';').map((arg) => arg.trim() || undefined) ?? [];
+		const [selector, event, property, value] = jActValue
+			? JSON.parse(jActValue)
+			: [];
 
-		const target = selector
-			? (document.querySelector(selector) as HTMLInputElement)
-			: element;
+		console.log({ selector, event, property, value });
 
-		if (!target) return;
+		let eventType = event ?? CONFIG.defaultEvent;
 
-		const isTargetInput = CONFIG.inputTagNames.includes(target.tagName);
-		const isElementInput = selector
-			? CONFIG.inputTagNames.includes(element.tagName)
-			: isTargetInput;
+		// Replace focus and blur with focusin and focusout so that they bubble
+		if (eventType === 'focus') eventType = 'focusin';
+		if (eventType === 'blur') eventType = 'focusout';
 
-		const eventType =
-			event ??
-			(isTargetInput ? CONFIG.defaultEventInput : CONFIG.defaultEvent);
+		addEventListener(eventType, (e) => {
+			const trigger = e.target as HTMLInputElement;
+			console.log({ trigger, eventType });
 
-		target.addEventListener(eventType, () => {
-			const newValue =
-				value ?? (isTargetInput ? target.value : target.innerText);
+			if (selector && !trigger.matches(selector)) return;
+			if (!selector && trigger !== jActElement) return;
+
+			const isTriggerInput = CONFIG.inputTagNames.includes(
+				trigger.tagName
+			);
+
+			if (!property) {
+				return (jActElement.hidden = !jActElement.hidden);
+			}
 
 			if (property) {
-				setElementProperty(element, property, newValue);
+				const newValue =
+					value ??
+					(isTriggerInput ? trigger.value : trigger.innerText);
+
+				setElementProperty(jActElement, property, newValue);
 				return;
 			}
-
-			if (isTargetInput && selector) {
-				isElementInput
-					? (element.value = newValue)
-					: (element.innerText = newValue);
-				return;
-			}
-
-			if (!isTargetInput) element.hidden = !element.hidden;
 		});
 	});
 }
 
-function setElementProperty(
-	element: any,
-	elementProperty: string,
-	value: string
-) {
-	const keys = elementProperty.split('.');
+function setElementProperty(element: any, property: string, value: string) {
+	const keys = property.split('.');
 
 	keys.reduce((acc, key, index) => {
 		if (index === keys.length - 1) {
