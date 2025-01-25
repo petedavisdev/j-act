@@ -1,3 +1,6 @@
-import { generateEventListeners } from './generateListeners';
+import { generateListeners } from './generateListeners';
+import { getEventElements } from './getEventElements';
 
-generateEventListeners();
+const jActEventElements = getEventElements();
+console.log(jActEventElements);
+generateListeners(jActEventElements);

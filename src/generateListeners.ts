@@ -1,48 +1,43 @@
 import { CONFIG } from './constants';
+import { type JActElement } from './getEventElements';
 
-export function generateEventListeners() {
-	const jActElements = document.querySelectorAll(`[${CONFIG.attribute}]`);
-
-	(jActElements as NodeListOf<HTMLInputElement>).forEach((jActElement) => {
-		const jActValue = jActElement.getAttribute(CONFIG.attribute);
-
-		const [selector, event, property, value] = jActValue
-			? JSON.parse(jActValue)
-			: [];
-
-		console.log({ selector, event, property, value });
-
-		let eventType = event ?? CONFIG.defaultEvent;
-
-		// Replace focus and blur with focusin and focusout so that they bubble
-		if (eventType === 'focus') eventType = 'focusin';
-		if (eventType === 'blur') eventType = 'focusout';
+export function generateListeners(
+	jActEventElements: Record<string, JActElement[]>
+) {
+	for (const eventType in jActEventElements) {
+		const elements = jActEventElements[eventType];
 
 		addEventListener(eventType, (e) => {
-			const trigger = e.target as HTMLInputElement;
-			console.log({ trigger, eventType });
+			for (let i = 0; i < elements.length; i++) {
+				const element = elements[i];
+				const { selector, property, value } = element.jActArgs;
 
-			if (selector && !trigger.matches(selector)) return;
-			if (!selector && trigger !== jActElement) return;
+				const trigger = e.target as HTMLInputElement;
 
-			const isTriggerInput = CONFIG.inputTagNames.includes(
-				trigger.tagName
-			);
+				if (selector && !trigger.matches(selector)) return;
+				if (!selector && trigger !== element) return;
 
-			if (!property) {
-				return (jActElement.hidden = !jActElement.hidden);
-			}
-
-			if (property) {
-				const newValue =
-					value ??
-					(isTriggerInput ? trigger.value : trigger.innerText);
-
-				setElementProperty(jActElement, property, newValue);
-				return;
+				updateElement(element, trigger, property, value);
 			}
 		});
-	});
+	}
+}
+
+function updateElement(
+	element: HTMLInputElement,
+	trigger: HTMLInputElement,
+	property?: string,
+	value?: string
+) {
+	const isTriggerInput = CONFIG.inputTagNames.includes(trigger.tagName);
+
+	// Default behavior
+	if (!property) return (element.hidden = !element.hidden);
+
+	const newValue =
+		value ?? (isTriggerInput ? trigger.value : trigger.innerText);
+
+	setElementProperty(element, property, newValue);
 }
 
 function setElementProperty(element: any, property: string, value: string) {
